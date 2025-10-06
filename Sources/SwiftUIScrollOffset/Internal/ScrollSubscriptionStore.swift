@@ -124,7 +124,7 @@ public final class ScrollSubscriptionStore {
         return (rounded, didChange)
     }
     
-    static func destroy() {
+    static public func destroy() {
         _shared = nil
     }
 }
