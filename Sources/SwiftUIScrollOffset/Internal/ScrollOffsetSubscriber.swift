@@ -33,6 +33,7 @@ public struct ScrollOffsetSubscriber: ViewModifier {
                 ScrollSubscriptionStore.shared.updateSubscription(from: oldID, to: newID)
             }
             .onDisappear {
+                ScrollSubscriptionStore.destroy()
                 ScrollSubscriptionStore.shared.unsubscribe(id: id)
             }
     }
