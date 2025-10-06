@@ -10,7 +10,7 @@ import SwiftUI
 
 @Observable
 @available(iOS 17, macOS 14, tvOS 17, visionOS 1, *)
-internal final class ScrollOffsetState: BaseScrollOffsetState {
+public final class ScrollOffsetState: BaseScrollOffsetState {
     private(set) var value = CGFloat.zero
     
     func update(edge: Edge, id: AnyHashable?, range: ClosedRange<CGFloat>) {
@@ -54,7 +54,7 @@ internal final class ScrollOffsetState: BaseScrollOffsetState {
 }
 
 
-internal class BaseScrollOffsetState {
+public class BaseScrollOffsetState {
     static func build() -> BaseScrollOffsetState? {
         if #available(iOS 17, macOS 14, tvOS 17, visionOS 1, *) {
             ScrollOffsetState()

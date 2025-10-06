@@ -6,7 +6,7 @@
 
 import Combine
 
-internal final class ScrollSubscription {
+public final class ScrollSubscription {
     let contentOffsetCancellable: AnyCancellable
     let contentSizeCancellable: AnyCancellable
     var offset: ScrollOffsetValue

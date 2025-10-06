@@ -7,8 +7,20 @@
 import Combine
 import Foundation
 
-internal final class ScrollSubscriptionStore {
-    static let shared = ScrollSubscriptionStore()
+public final class ScrollSubscriptionStore {
+    
+    private static var _shared: ScrollSubscriptionStore?
+
+    static var shared: ScrollSubscriptionStore {
+        if let existing = _shared {
+            return existing
+        } else {
+            let manager = ScrollSubscriptionStore()
+            _shared = manager
+            return manager
+        }
+    }
+    
     private init() {}
     
     let offsetChangedSubject = PassthroughSubject<AnyHashable, Never>()
@@ -110,5 +122,9 @@ internal final class ScrollSubscriptionStore {
         let rounded = CGFloat(firstRounded) / displayScale
         let didChange = firstRounded != secondRounded
         return (rounded, didChange)
+    }
+    
+    static func destroy() {
+        _shared = nil
     }
 }

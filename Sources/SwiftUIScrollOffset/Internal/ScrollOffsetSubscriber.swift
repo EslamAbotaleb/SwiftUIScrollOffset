@@ -8,12 +8,12 @@ import SwiftUI
 import SwiftUIIntrospect
 
 @MainActor
-internal struct ScrollOffsetSubscriber: ViewModifier {
+public struct ScrollOffsetSubscriber: ViewModifier {
     @State private var automaticID = UUID()
     
     var scrollOffsetID: ScrollOffsetID
     
-    func body(content: Content) -> some View {
+    public func body(content: Content) -> some View {
         content
             .environment(\.scrollPublisherID, id)
             .modifier(ScrollOffsetIntrospectionModifier(id: id))

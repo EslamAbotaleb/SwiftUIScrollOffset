@@ -7,7 +7,7 @@
 import Combine
 import SwiftUI
 
-internal final class ScrollOffsetStateObject: ObservableObject {
+public final class ScrollOffsetStateObject: ObservableObject {
     private(set) var value = CGFloat.zero
     
     func update(edge: Edge, id: AnyHashable?, range: ClosedRange<CGFloat>) {

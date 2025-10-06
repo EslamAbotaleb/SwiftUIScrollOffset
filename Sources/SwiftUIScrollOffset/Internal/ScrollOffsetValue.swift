@@ -6,7 +6,7 @@
 
 import SwiftUI
 
-internal struct ScrollOffsetValue: Equatable, Sendable {
+public struct ScrollOffsetValue: Equatable, Sendable {
     let top: CGFloat
     let leading: CGFloat
     let bottom: CGFloat
