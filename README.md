@@ -101,8 +101,16 @@ See [Examples](/Sources/SwiftUIScrollOffset/Examples/) for more.
 
 ## Installation
 
-* Install with [Swift Package Manager](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app).
+* Install with [Swift Package Manager](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app) or with [CocoaPods](https://guides.cocoapods.org/using/getting-started.html).
 * Import `SwiftUIScrollOffset` to start using.
+
+### CocoaPods
+
+To install with CocoaPods, add the dependency to your Podfile.
+
+```ruby
+pod 'SwiftUIScrollOffset'
+```
 
 ## Dependencies
 
