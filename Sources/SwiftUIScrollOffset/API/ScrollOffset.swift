@@ -7,7 +7,7 @@
 import SwiftUI
 
 @MainActor
-@propertyWrapper public struct ScrollOffset: @MainActor DynamicProperty {
+@propertyWrapper public struct ScrollOffset: @preconcurrency DynamicProperty {
     @Environment(\.scrollPublisherID) private var scrollPublisherID
     @StateObject private var stateObject = ScrollOffsetStateObject()
     @State private var baseState = BaseScrollOffsetState.build()
