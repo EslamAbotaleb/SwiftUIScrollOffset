@@ -9,7 +9,21 @@ import Foundation
 
 @MainActor
 public final class ScrollSubscriptionStore {
-    public static let shared = ScrollSubscriptionStore()
+//    public static let shared = ScrollSubscriptionStore()
+    private static var _shared: ScrollSubscriptionStore?
+    private static let lock = NSLock()
+    public static var shared: ScrollSubscriptionStore {
+        lock.lock()
+        defer {
+            lock.unlock()
+        }
+        if let instance = _shared {
+            return instance
+        }
+        let instance = ScrollSubscriptionStore()
+        _shared = instance
+        return instance
+    }
     private init() {}
     
     let offsetChangedSubject = PassthroughSubject<AnyHashable, Never>()
@@ -108,5 +122,14 @@ public final class ScrollSubscriptionStore {
         let rounded = CGFloat(firstRounded) / displayScale
         let didChange = firstRounded != secondRounded
         return (rounded, didChange)
+    }
+    
+    public func cleanup() {
+        subscriptions.removeAll()
+        offsetChangedSubject.send(completion: .finished)
+    }
+    
+    public static func destroyShared() {
+        _shared = nil
     }
 }
