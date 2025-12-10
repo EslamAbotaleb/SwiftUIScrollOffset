@@ -30,16 +30,35 @@ public final class ScrollSubscriptionStore {
         }
     }
     
+//    func subscribe(id: AnyHashable, scrollView: PlatformScrollView) {
+//        guard self[scrollView: id] != scrollView
+//        else { return }
+//        
+//        let contentOffsetCancellable = scrollView.subscribeToContentOffset {
+//            self.updateOffset(for: id)
+//        }
+//        
+//        let contentSizeCancellable = scrollView.subscribeToContentSize {
+//            self.updateOffset(for: id)
+//        }
+//        
+//        subscriptions[id] = ScrollSubscription(
+//            contentOffsetCancellable: contentOffsetCancellable,
+//            contentSizeCancellable: contentSizeCancellable,
+//            scrollView: scrollView
+//        )
+//        
+//        updateOffset(for: id)
+//    }
     func subscribe(id: AnyHashable, scrollView: PlatformScrollView) {
-        guard self[scrollView: id] != scrollView
-        else { return }
+        guard self[scrollView: id] != scrollView else { return }
         
-        let contentOffsetCancellable = scrollView.subscribeToContentOffset {
-            self.updateOffset(for: id)
+        let contentOffsetCancellable = scrollView.subscribeToContentOffset { [weak self] in
+            self?.updateOffset(for: id)
         }
         
-        let contentSizeCancellable = scrollView.subscribeToContentSize {
-            self.updateOffset(for: id)
+        let contentSizeCancellable = scrollView.subscribeToContentSize { [weak self] in
+            self?.updateOffset(for: id)
         }
         
         subscriptions[id] = ScrollSubscription(
@@ -50,14 +69,19 @@ public final class ScrollSubscriptionStore {
         
         updateOffset(for: id)
     }
-    
+
+    @MainActor
     public func unsubscribe(id: AnyHashable) {
-        DispatchQueue.main.async {
-            if let subscription = self.subscriptions[id], subscription.scrollView == nil {
-                self.subscriptions.removeValue(forKey: id)
-            }
-        }
+        // Remove immediately without checking scrollView
+        subscriptions[id] = nil
     }
+//    public func unsubscribe(id: AnyHashable) {
+//        DispatchQueue.main.async {
+//            if let subscription = self.subscriptions[id], subscription.scrollView == nil {
+//                self.subscriptions.removeValue(forKey: id)
+//            }
+//        }
+//    }
     
     func updateOffset(for id: AnyHashable) {
         guard let scrollView = self[scrollView: id] else { return }
