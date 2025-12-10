@@ -51,19 +51,13 @@ public final class ScrollSubscriptionStore {
         updateOffset(for: id)
     }
     
-
-    @MainActor
     public func unsubscribe(id: AnyHashable) {
-        // Remove immediately without checking scrollView
-        subscriptions[id] = nil
+        DispatchQueue.main.async {
+            if let subscription = self.subscriptions[id], subscription.scrollView == nil {
+                self.subscriptions.removeValue(forKey: id)
+            }
+        }
     }
-//    public func unsubscribe(id: AnyHashable) {
-//        DispatchQueue.main.async {
-//            if let subscription = self.subscriptions[id], subscription.scrollView == nil {
-//                self.subscriptions.removeValue(forKey: id)
-//            }
-//        }
-//    }
     
     func updateOffset(for id: AnyHashable) {
         guard let scrollView = self[scrollView: id] else { return }
