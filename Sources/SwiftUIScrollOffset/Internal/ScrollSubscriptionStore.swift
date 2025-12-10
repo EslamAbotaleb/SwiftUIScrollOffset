@@ -8,8 +8,8 @@ import Combine
 import Foundation
 
 @MainActor
-internal final class ScrollSubscriptionStore {
-    static let shared = ScrollSubscriptionStore()
+public final class ScrollSubscriptionStore {
+    public static let shared = ScrollSubscriptionStore()
     private init() {}
     
     let offsetChangedSubject = PassthroughSubject<AnyHashable, Never>()
@@ -34,12 +34,12 @@ internal final class ScrollSubscriptionStore {
         guard self[scrollView: id] != scrollView
         else { return }
         
-        let contentOffsetCancellable = scrollView.subscribeToContentOffset {
-            self.updateOffset(for: id)
+        let contentOffsetCancellable = scrollView.subscribeToContentOffset { [weak self] in
+            self?.updateOffset(for: id)
         }
-        
-        let contentSizeCancellable = scrollView.subscribeToContentSize {
-            self.updateOffset(for: id)
+
+        let contentSizeCancellable = scrollView.subscribeToContentSize { [weak self] in
+            self?.updateOffset(for: id)
         }
         
         subscriptions[id] = ScrollSubscription(
@@ -51,14 +51,19 @@ internal final class ScrollSubscriptionStore {
         updateOffset(for: id)
     }
     
-    func unsubscribe(id: AnyHashable) {
+//    func unsubscribe(id: AnyHashable) {
+//        DispatchQueue.main.async {
+//            if let subscription = self.subscriptions[id], subscription.scrollView == nil {
+//                self.subscriptions.removeValue(forKey: id)
+//            }
+//        }
+//    }
+    public func unsubscribe(id: AnyHashable) {
         DispatchQueue.main.async {
-            if let subscription = self.subscriptions[id], subscription.scrollView == nil {
-                self.subscriptions.removeValue(forKey: id)
-            }
+            self.subscriptions.removeValue(forKey: id)
         }
     }
-    
+
     func updateOffset(for id: AnyHashable) {
         guard let scrollView = self[scrollView: id] else { return }
         
