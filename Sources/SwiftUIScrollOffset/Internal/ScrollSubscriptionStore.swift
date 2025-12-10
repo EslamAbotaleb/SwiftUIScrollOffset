@@ -8,22 +8,8 @@ import Combine
 import Foundation
 
 @MainActor
-public final class ScrollSubscriptionStore {
-//    public static let shared = ScrollSubscriptionStore()
-    private static var _shared: ScrollSubscriptionStore?
-    private static let lock = NSLock()
-    public static var shared: ScrollSubscriptionStore {
-        lock.lock()
-        defer {
-            lock.unlock()
-        }
-        if let instance = _shared {
-            return instance
-        }
-        let instance = ScrollSubscriptionStore()
-        _shared = instance
-        return instance
-    }
+public  final class ScrollSubscriptionStore {
+    public static let shared = ScrollSubscriptionStore()
     private init() {}
     
     let offsetChangedSubject = PassthroughSubject<AnyHashable, Never>()
@@ -48,12 +34,12 @@ public final class ScrollSubscriptionStore {
         guard self[scrollView: id] != scrollView
         else { return }
         
-        let contentOffsetCancellable = scrollView.subscribeToContentOffset {
-            self.updateOffset(for: id)
+        let contentOffsetCancellable = scrollView.subscribeToContentOffset { [weak self] in
+            self?.updateOffset(for: id)
         }
-        
-        let contentSizeCancellable = scrollView.subscribeToContentSize {
-            self.updateOffset(for: id)
+
+        let contentSizeCancellable = scrollView.subscribeToContentSize { [weak self] in
+            self?.updateOffset(for: id)
         }
         
         subscriptions[id] = ScrollSubscription(
@@ -65,14 +51,37 @@ public final class ScrollSubscriptionStore {
         updateOffset(for: id)
     }
     
+    private func purgeUnusedSubscriptions() {
+        subscriptions = subscriptions.filter { $0.value.scrollView != nil }
+    }
+    
     public func unsubscribe(id: AnyHashable) {
         DispatchQueue.main.async {
+            // 👇 Keep original logic EXACTLY as is
             if let subscription = self.subscriptions[id], subscription.scrollView == nil {
                 self.subscriptions.removeValue(forKey: id)
             }
+            
+            // 👇 NEW SAFE CLEANUP (delayed)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                self.purgeUnusedSubscriptions()
+            }
         }
     }
-    
+
+//    func unsubscribe(id: AnyHashable) {
+//        DispatchQueue.main.async {
+//            if let subscription = self.subscriptions[id], subscription.scrollView == nil {
+//                self.subscriptions.removeValue(forKey: id)
+//            }
+//        }
+//    }
+//    public func unsubscribe(id: AnyHashable) {
+//        DispatchQueue.main.async {
+//            self.subscriptions.removeValue(forKey: id)
+//        }
+//    }
+
     func updateOffset(for id: AnyHashable) {
         guard let scrollView = self[scrollView: id] else { return }
         
@@ -122,14 +131,5 @@ public final class ScrollSubscriptionStore {
         let rounded = CGFloat(firstRounded) / displayScale
         let didChange = firstRounded != secondRounded
         return (rounded, didChange)
-    }
-    
-    public func cleanup() {
-        subscriptions.removeAll()
-        offsetChangedSubject.send(completion: .finished)
-    }
-    
-    public static func destroyShared() {
-        _shared = nil
     }
 }
