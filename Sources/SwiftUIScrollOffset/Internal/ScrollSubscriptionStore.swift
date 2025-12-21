@@ -57,31 +57,16 @@ public  final class ScrollSubscriptionStore {
     
     public func unsubscribe(id: AnyHashable) {
         DispatchQueue.main.async {
-            // 👇 Keep original logic EXACTLY as is
             if let subscription = self.subscriptions[id], subscription.scrollView == nil {
                 self.subscriptions.removeValue(forKey: id)
             }
             
-            // 👇 NEW SAFE CLEANUP (delayed)
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 self.purgeUnusedSubscriptions()
             }
         }
     }
-
-//    func unsubscribe(id: AnyHashable) {
-//        DispatchQueue.main.async {
-//            if let subscription = self.subscriptions[id], subscription.scrollView == nil {
-//                self.subscriptions.removeValue(forKey: id)
-//            }
-//        }
-//    }
-//    public func unsubscribe(id: AnyHashable) {
-//        DispatchQueue.main.async {
-//            self.subscriptions.removeValue(forKey: id)
-//        }
-//    }
-
+    
     func updateOffset(for id: AnyHashable) {
         guard let scrollView = self[scrollView: id] else { return }
         
